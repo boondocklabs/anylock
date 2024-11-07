@@ -18,17 +18,28 @@
 //! * parking_lot
 //! * tokio
 //!
+//! Also supports [`core::cell::RefCell`]
+//!
 //! ## Example
 //!
 //! ```
 //! use anylock::AnyLock;
 //! use std::{marker::PhantomData, sync::Arc};
 //!
-//! /// Example struct wrapping some inner type T
+//! // Using type annotations, you can use AnyLock::new()
+//! let arc_lock_string: Arc<std::sync::Mutex<String>> =
+//!     Arc::new(AnyLock::new("Hello AnyLock".into()));
+//!
+//! // Although this is a Mutex, we access it using read() and write()
+//! // to allow AnyLock to be compatible with RwLock APIs.
+//! println!("{}", arc_lock_string.read());
+//!
+//! /// Example struct wrapping some inner type T with any kind of lock
 //! #[derive(Default)]
 //! struct MyWrapper<T, Lock>
 //! where
 //!     T: std::fmt::Debug,
+//!     // Use a trait bound to accept any kind of lock
 //!     Lock: AnyLock<T>,
 //! {
 //!     inner: Arc<Lock>,
@@ -67,6 +78,7 @@
 //!
 //! ```
 
+pub mod core_cell;
 pub mod parking_lot_anylock;
 pub mod std_anylock;
 pub mod tokio_anylock;
@@ -83,6 +95,9 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+/// AnyLock trait allows different underlying lock implementations.
+///
+///
 pub trait AnyLock<T>: std::fmt::Debug
 where
     T: std::fmt::Debug,

@@ -33,6 +33,13 @@ pub fn std_mutex() {
 }
 
 #[test]
+pub fn core_refcell() {
+    let x = MyWrapper::<String, core::cell::RefCell<String>>::new("Hello".into());
+    println!("{:#?}", x);
+    println!("{:?}", x.inner.read());
+}
+
+#[test]
 pub fn parking_lot_mutex() {
     let x = MyWrapper::<String, parking_lot::Mutex<String>>::new("Hello".into());
     println!("{:?}", x.inner.read());
