@@ -4,10 +4,7 @@ use crate::AnyLock;
 use std::future::Future;
 
 /// Tokio Mutex
-impl<T> AnyLock<T> for tokio::sync::Mutex<T>
-where
-    T: Send + Sync,
-{
+impl<T> AnyLock<T> for tokio::sync::Mutex<T> {
     type ReadGuard<'a> = tokio::sync::MutexGuard<'a, T>
     where
         T: 'a,
@@ -26,11 +23,11 @@ where
         self.blocking_lock()
     }
 
-    fn async_read<'a>(&'a self) -> Box<dyn Future<Output = Self::ReadGuard<'a>> + Send + 'a> {
+    fn async_read<'a>(&'a self) -> Box<dyn Future<Output = Self::ReadGuard<'a>> + 'a> {
         Box::new(async move { self.lock().await })
     }
 
-    fn async_write<'a>(&'a self) -> Box<dyn Future<Output = Self::WriteGuard<'a>> + Send + 'a> {
+    fn async_write<'a>(&'a self) -> Box<dyn Future<Output = Self::WriteGuard<'a>> + 'a> {
         Box::new(async move { self.lock().await })
     }
 
@@ -46,14 +43,11 @@ pub struct TokioRwLock<T>(tokio::sync::RwLock<T>);
 
 /*
 impl AnyLockInner for TokioRwLock {
-    type Inner = Box<dyn std::any::Any + Send + Sync>;
+    type Inner = Box<dyn std::any::Any + Sync>;
 }
 */
 
-impl<T> AnyLock<T> for TokioRwLock<T>
-where
-    T: Send + Sync,
-{
+impl<T> AnyLock<T> for TokioRwLock<T> {
     type ReadGuard<'a> = tokio::sync::RwLockReadGuard<'a, T>
     where
         T: 'a,
@@ -72,11 +66,11 @@ where
         self.0.blocking_write()
     }
 
-    fn async_read<'a>(&'a self) -> Box<dyn Future<Output = Self::ReadGuard<'a>> + Send + 'a> {
+    fn async_read<'a>(&'a self) -> Box<dyn Future<Output = Self::ReadGuard<'a>> + 'a> {
         Box::new(async move { self.0.read().await })
     }
 
-    fn async_write<'a>(&'a self) -> Box<dyn Future<Output = Self::WriteGuard<'a>> + Send + 'a> {
+    fn async_write<'a>(&'a self) -> Box<dyn Future<Output = Self::WriteGuard<'a>> + 'a> {
         Box::new(async move { self.0.write().await })
     }
 

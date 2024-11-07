@@ -2,10 +2,7 @@
 
 use crate::AnyLock;
 
-impl<T> AnyLock<T> for parking_lot::Mutex<T>
-where
-    T: Send + Sync,
-{
+impl<T> AnyLock<T> for parking_lot::Mutex<T> {
     type ReadGuard<'a> = parking_lot::MutexGuard<'a, T>
     where
         T: 'a,
@@ -32,10 +29,7 @@ where
 
 pub struct ParkingLotRwLock<T>(parking_lot::RwLock<T>);
 
-impl<T> AnyLock<T> for ParkingLotRwLock<T>
-where
-    T: Send + Sync,
-{
+impl<T> AnyLock<T> for ParkingLotRwLock<T> {
     type ReadGuard<'a> = parking_lot::RwLockReadGuard<'a, T>
     where
         T: 'a,

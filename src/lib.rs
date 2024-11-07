@@ -28,7 +28,7 @@
 //! #[derive(Default)]
 //! struct MyWrapper<T, Lock>
 //! where
-//!     T: Send + Sync,
+//!     T: Sync,
 //!     Lock: AnyLock<T>,
 //! {
 //!     inner: Arc<Lock>,
@@ -37,7 +37,7 @@
 //!
 //! impl<T, Lock> MyWrapper<T, Lock>
 //! where
-//!     T: Send + Sync,
+//!     T: Sync,
 //!     Lock: AnyLock<T>,
 //! {
 //!     fn new(inner: T) -> Self {
@@ -83,16 +83,13 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-pub trait AnyLock<T>: Send + Sync
-where
-    T: Send + Sync,
-{
-    type ReadGuard<'a>: Deref<Target = T> + Sync
+pub trait AnyLock<T> {
+    type ReadGuard<'a>: Deref<Target = T>
     where
         T: 'a,
         Self: 'a;
 
-    type WriteGuard<'a>: DerefMut<Target = T> + Sync
+    type WriteGuard<'a>: DerefMut<Target = T>
     where
         T: 'a,
         Self: 'a;
@@ -107,11 +104,11 @@ where
         panic!("Synchronous read not supported")
     }
 
-    fn async_read<'a>(&'a self) -> Box<dyn Future<Output = Self::ReadGuard<'a>> + Send + 'a> {
+    fn async_read<'a>(&'a self) -> Box<dyn Future<Output = Self::ReadGuard<'a>> + 'a> {
         Box::new(async { panic!("Async read not supported") })
     }
 
-    fn async_write<'a>(&'a self) -> Box<dyn Future<Output = Self::WriteGuard<'a>> + Send + 'a> {
+    fn async_write<'a>(&'a self) -> Box<dyn Future<Output = Self::WriteGuard<'a>> + 'a> {
         Box::new(async { panic!("Async write not supported") })
     }
 }
