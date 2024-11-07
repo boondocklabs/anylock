@@ -1,0 +1,17 @@
+[package]
+name = "anylock"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "AnyLock Polymorphic Locks"
+homepage = "https://github.com/boondocklabs/anylock"
+repository = "https://github.com/boondocklabs/anylock"
+documentation = "https://docs.rs/anylock"
+readme = "README.md"
+
+[dependencies]
+parking_lot = { version = "0.12.3", features = [
+    "arc_lock",
+    "deadlock_detection",
+] }
+tokio = { version = "1.41.0", features = ["sync"] }
