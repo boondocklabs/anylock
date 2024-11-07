@@ -2,7 +2,10 @@
 
 use crate::AnyLock;
 
-impl<T> AnyLock<T> for parking_lot::Mutex<T> {
+impl<T> AnyLock<T> for parking_lot::Mutex<T>
+where
+    T: std::fmt::Debug,
+{
     type ReadGuard<'a> = parking_lot::MutexGuard<'a, T>
     where
         T: 'a,
@@ -27,9 +30,13 @@ impl<T> AnyLock<T> for parking_lot::Mutex<T> {
     }
 }
 
+#[derive(Debug)]
 pub struct ParkingLotRwLock<T>(parking_lot::RwLock<T>);
 
-impl<T> AnyLock<T> for ParkingLotRwLock<T> {
+impl<T> AnyLock<T> for ParkingLotRwLock<T>
+where
+    T: std::fmt::Debug,
+{
     type ReadGuard<'a> = parking_lot::RwLockReadGuard<'a, T>
     where
         T: 'a,

@@ -4,7 +4,10 @@ use crate::AnyLock;
 use std::future::Future;
 
 /// Tokio Mutex
-impl<T> AnyLock<T> for tokio::sync::Mutex<T> {
+impl<T> AnyLock<T> for tokio::sync::Mutex<T>
+where
+    T: std::fmt::Debug,
+{
     type ReadGuard<'a> = tokio::sync::MutexGuard<'a, T>
     where
         T: 'a,
@@ -38,7 +41,7 @@ impl<T> AnyLock<T> for tokio::sync::Mutex<T> {
 }
 
 /// Tokio RwLock
-
+#[derive(Debug)]
 pub struct TokioRwLock<T>(tokio::sync::RwLock<T>);
 
 /*
@@ -47,7 +50,10 @@ impl AnyLockInner for TokioRwLock {
 }
 */
 
-impl<T> AnyLock<T> for TokioRwLock<T> {
+impl<T> AnyLock<T> for TokioRwLock<T>
+where
+    T: std::fmt::Debug,
+{
     type ReadGuard<'a> = tokio::sync::RwLockReadGuard<'a, T>
     where
         T: 'a,

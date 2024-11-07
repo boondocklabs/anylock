@@ -2,10 +2,10 @@ use std::{marker::PhantomData, sync::Arc};
 
 use crate::AnyLock;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 struct MyWrapper<T, Inner>
 where
-    T: Send + Sync,
+    T: std::fmt::Debug,
     Inner: AnyLock<T>,
 {
     inner: Arc<Inner>,
@@ -14,7 +14,7 @@ where
 
 impl<T, Lock> MyWrapper<T, Lock>
 where
-    T: Send + Sync,
+    T: std::fmt::Debug,
     Lock: AnyLock<T>,
 {
     fn new(inner: T) -> Self {
@@ -28,6 +28,7 @@ where
 #[test]
 pub fn std_mutex() {
     let x = MyWrapper::<String, std::sync::Mutex<String>>::new("Hello".into());
+    println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 

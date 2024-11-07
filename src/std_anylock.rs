@@ -2,7 +2,10 @@
 
 use crate::AnyLock;
 
-impl<T> AnyLock<T> for std::sync::Mutex<T> {
+impl<T> AnyLock<T> for std::sync::Mutex<T>
+where
+    T: std::fmt::Debug,
+{
     type ReadGuard<'a> = std::sync::MutexGuard<'a, T>
     where T: 'a, Self: 'a;
     type WriteGuard<'a> = std::sync::MutexGuard<'a, T>
@@ -23,9 +26,13 @@ impl<T> AnyLock<T> for std::sync::Mutex<T> {
 }
 
 /// Wrapped [`std::sync::RwLock`]
+#[derive(Debug)]
 pub struct StdRwLock<T>(std::sync::RwLock<T>);
 
-impl<T> AnyLock<T> for StdRwLock<T> {
+impl<T> AnyLock<T> for StdRwLock<T>
+where
+    T: std::fmt::Debug,
+{
     type ReadGuard<'a> = std::sync::RwLockReadGuard<'a, T>
     where
         T: 'a,

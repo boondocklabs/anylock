@@ -28,7 +28,7 @@
 //! #[derive(Default)]
 //! struct MyWrapper<T, Lock>
 //! where
-//!     T: Sync,
+//!     T: std::fmt::Debug,
 //!     Lock: AnyLock<T>,
 //! {
 //!     inner: Arc<Lock>,
@@ -37,7 +37,7 @@
 //!
 //! impl<T, Lock> MyWrapper<T, Lock>
 //! where
-//!     T: Sync,
+//!     T: std::fmt::Debug,
 //!     Lock: AnyLock<T>,
 //! {
 //!     fn new(inner: T) -> Self {
@@ -83,7 +83,10 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-pub trait AnyLock<T> {
+pub trait AnyLock<T>: std::fmt::Debug
+where
+    T: std::fmt::Debug,
+{
     type ReadGuard<'a>: Deref<Target = T>
     where
         T: 'a,
