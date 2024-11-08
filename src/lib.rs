@@ -4,21 +4,17 @@
 //!
 //! Works as either `RwLock` or `Mutex`. For `Mutex` types, [`AnyLock::read()`] and [`AnyLock::write()`] are aliased.
 //!
-//! <div class="warning">
-//! Note that when using `RwLock` types, the newtype exported from AnyLock (StdRwLock, ParkingLotRwLock, TokioRwLock) must be used.
-//! The impl of the AnyLock trait is only on the newtype wrappers to avoid collision of the `read()` and `write()` methods with the underlying RwLock implementations.
-//! </div>
+//! [`AnyLock`] provides newtype wrappers around supported locks:
+//!
+//! | Provider       | Mutex                           | RwLock                       |
+//! |----------------|---------------------------------|------------------------------|
+//! | parking_lot    | [`crate::ParkingLotMutex`]      | [`crate::ParkingLotRwLock`]  |
+//! | std::sync      | [`crate::StdMutex`]             | [`crate::StdRwLock`]         |
+//! | tokio          | [`crate::TokioMutex`]           | [`crate::TokioRwLock`]       |
+//! | core::sync     | [`crate::CoreRefCell`]          |                              |
 //!
 //! ## Async
 //! Async locks using [`tokio`] are supported using [`AnyLock::async_read()`] and [`AnyLock::async_write()`].
-//!
-//! ## Supported Lock Implementations
-//!
-//! * std::sync
-//! * parking_lot
-//! * tokio
-//!
-//! Also supports [`core::cell::RefCell`]
 //!
 //! ## Example
 //!
@@ -27,7 +23,7 @@
 //! use std::{marker::PhantomData, sync::Arc};
 //!
 //! // Using type annotations, you can use AnyLock::new()
-//! let arc_lock_string: Arc<std::sync::Mutex<String>> =
+//! let arc_lock_string: Arc<anylock::StdMutex<String>> =
 //!     Arc::new(AnyLock::new("Hello AnyLock".into()));
 //!
 //! // Although this is a Mutex, we access it using read() and write()
@@ -38,7 +34,6 @@
 //! #[derive(Default)]
 //! struct MyWrapper<T, Lock>
 //! where
-//!     T: std::fmt::Debug,
 //!     // Use a trait bound to accept any kind of lock
 //!     Lock: AnyLock<T>,
 //! {
@@ -48,7 +43,6 @@
 //!
 //! impl<T, Lock> MyWrapper<T, Lock>
 //! where
-//!     T: std::fmt::Debug,
 //!     Lock: AnyLock<T>,
 //! {
 //!     fn new(inner: T) -> Self {
@@ -63,7 +57,7 @@
 //! // the implementation of MyWrapper itself.
 //!
 //! // std::Mutex
-//! let x = MyWrapper::<String, std::sync::Mutex<String>>::new("Hello".into());
+//! let x = MyWrapper::<String, anylock::StdMutex<_>>::new("Hello".into());
 //! println!("{}", x.inner.read());
 //!
 //! // parking_lot::RwLock
@@ -83,9 +77,10 @@ pub mod parking_lot_anylock;
 pub mod std_anylock;
 pub mod tokio_anylock;
 
-pub use parking_lot_anylock::ParkingLotRwLock;
-pub use std_anylock::StdRwLock;
-pub use tokio_anylock::TokioRwLock;
+pub use core_cell::CoreRefCell;
+pub use parking_lot_anylock::{ParkingLotMutex, ParkingLotRwLock};
+pub use std_anylock::{StdMutex, StdRwLock};
+pub use tokio_anylock::{TokioMutex, TokioRwLock};
 
 #[cfg(test)]
 mod tests;
@@ -98,10 +93,7 @@ use std::{
 /// AnyLock trait allows different underlying lock implementations.
 ///
 ///
-pub trait AnyLock<T>: std::fmt::Debug
-where
-    T: std::fmt::Debug,
-{
+pub trait AnyLock<T> {
     type ReadGuard<'a>: Deref<Target = T>
     where
         T: 'a,

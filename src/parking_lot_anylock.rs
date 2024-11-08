@@ -2,7 +2,9 @@
 
 use crate::AnyLock;
 
-impl<T> AnyLock<T> for parking_lot::Mutex<T>
+pub struct ParkingLotMutex<T>(parking_lot::Mutex<T>);
+
+impl<T> AnyLock<T> for ParkingLotMutex<T>
 where
     T: std::fmt::Debug,
 {
@@ -17,20 +19,28 @@ where
         Self: 'a;
 
     fn read<'a>(&'a self) -> Self::ReadGuard<'a> {
-        self.lock()
+        self.0.lock()
     }
 
     fn write<'a>(&'a self) -> Self::WriteGuard<'a> {
-        self.lock()
+        self.0.lock()
     }
 
     /// Create a new lock [`parking_lot::Mutex`]
     fn new(inner: T) -> Self {
-        parking_lot::Mutex::new(inner)
+        ParkingLotMutex(parking_lot::Mutex::new(inner))
     }
 }
 
-#[derive(Debug)]
+impl<T> std::fmt::Debug for ParkingLotMutex<T>
+where
+    T: std::fmt::Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 pub struct ParkingLotRwLock<T>(parking_lot::RwLock<T>);
 
 impl<T> AnyLock<T> for ParkingLotRwLock<T>
@@ -58,5 +68,14 @@ where
     /// Create a new lock [`parking_lot::RwLock`]
     fn new(inner: T) -> Self {
         ParkingLotRwLock(parking_lot::RwLock::new(inner))
+    }
+}
+
+impl<T> std::fmt::Debug for ParkingLotRwLock<T>
+where
+    T: std::fmt::Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
     }
 }

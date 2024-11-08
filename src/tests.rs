@@ -27,39 +27,42 @@ where
 
 #[test]
 pub fn std_mutex() {
-    let x = MyWrapper::<String, std::sync::Mutex<String>>::new("Hello".into());
+    let x = MyWrapper::<String, crate::StdMutex<String>>::new("Hello".into());
     println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 
 #[test]
 pub fn core_refcell() {
-    let x = MyWrapper::<String, core::cell::RefCell<String>>::new("Hello".into());
+    let x = MyWrapper::<String, crate::CoreRefCell<String>>::new("Hello".into());
     println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 
 #[test]
 pub fn parking_lot_mutex() {
-    let x = MyWrapper::<String, parking_lot::Mutex<String>>::new("Hello".into());
+    let x = MyWrapper::<String, crate::ParkingLotMutex<String>>::new("Hello".into());
     println!("{:?}", x.inner.read());
 }
 
 #[test]
 pub fn tokio_sync_mutex() {
-    let x = MyWrapper::<String, tokio::sync::Mutex<String>>::new("Hello".into());
+    let x = MyWrapper::<String, crate::TokioMutex<String>>::new("Hello".into());
+    println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 
 #[test]
 pub fn std_rwlock() {
     let x = MyWrapper::<String, crate::StdRwLock<String>>::new("Hello".into());
+    println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 
 #[test]
 pub fn parking_lot_rwlock_read() {
     let x = MyWrapper::<String, crate::ParkingLotRwLock<String>>::new("Hello".into());
+    println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 
@@ -67,12 +70,14 @@ pub fn parking_lot_rwlock_read() {
 pub fn parking_lot_rwlock_write() {
     let x = MyWrapper::<String, crate::ParkingLotRwLock<String>>::new("Hello".into());
     *x.inner.write() = "World".into();
+    println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 
 #[test]
 pub fn tokio_sync_rwlock_read() {
     let x = MyWrapper::<String, crate::TokioRwLock<String>>::new("Hello".into());
+    println!("{:#?}", x);
     println!("{:?}", x.inner.read());
 }
 
@@ -80,5 +85,6 @@ pub fn tokio_sync_rwlock_read() {
 pub fn tokio_sync_rwlock_write() {
     let x = MyWrapper::<String, crate::TokioRwLock<String>>::new("Hello".into());
     *x.inner.write() = "World".into();
+    println!("{:#?}", x);
     println!("{:?}", x.inner.write());
 }
